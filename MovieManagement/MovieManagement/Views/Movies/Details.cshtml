@@ -1,0 +1,104 @@
+@model MovieManagement.Models.Movie
+@{
+    ViewData["Title"] = Model.Title;
+}
+
+<div class="container">
+    <div class="row">
+        <div class="col-md-4">
+            <img src="@Model.PosterUrl" class="img-fluid rounded" alt="@Model.Title">
+        </div>
+        <div class="col-md-8">
+            <h1>@Model.Title</h1>
+            <div class="mb-3">
+                <span class="badge bg-primary me-2">@Model.Duration min</span>
+                <span class="badge bg-secondary me-2">@Model.ReleaseDate.Year</span>
+                @foreach (var category in Model.Categories)
+                {
+                    <span class="badge bg-info me-2">@category.Name</span>
+                }
+            </div>
+            <h5>Director</h5>
+            <p>@Model.Director</p>
+            <h5>Description</h5>
+            <p>@Model.Description</p>
+            <div class="mb-4">
+                <h5>Rating</h5>
+                <div class="d-flex align-items-center">
+                    <h2 class="me-2">@Model.Rating</h2>
+                    <div class="text-warning">
+                        @for (int i = 0; i < 5; i++)
+                        {
+                            if (i < Model.Rating / 2)
+                            {
+                                <i class="fas fa-star"></i>
+                            }
+                            else if (i < (Model.Rating + 1) / 2)
+                            {
+                                <i class="fas fa-star-half-alt"></i>
+                            }
+                            else
+                            {
+                                <i class="far fa-star"></i>
+                            }
+                        }
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row mt-5">
+        <div class="col-12">
+            <h3>Reviews</h3>
+            <div class="card mb-4">
+                <div class="card-body">
+                    <h5>Write a Review</h5>
+                    <form>
+                        <div class="mb-3">
+                            <label for="rating" class="form-label">Rating</label>
+                            <select class="form-select" id="rating" name="rating">
+                                <option value="1">1 Star</option>
+                                <option value="2">2 Stars</option>
+                                <option value="3">3 Stars</option>
+                                <option value="4">4 Stars</option>
+                                <option value="5">5 Stars</option>
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label for="review" class="form-label">Your Review</label>
+                            <textarea class="form-control" id="review" name="review" rows="3"></textarea>
+                        </div>
+                        <button type="submit" class="btn btn-primary">Submit Review</button>
+                    </form>
+                </div>
+            </div>
+
+            @foreach (var review in Model.Reviews)
+            {
+                <div class="card mb-3">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between align-items-center mb-2">
+                            <h5 class="card-title mb-0">@review.User.Username</h5>
+                            <small class="text-muted">@review.ReviewDate.ToString("MMM dd, yyyy")</small>
+                        </div>
+                        <div class="text-warning mb-2">
+                            @for (int i = 0; i < 5; i++)
+                            {
+                                if (i < review.Rating)
+                                {
+                                    <i class="fas fa-star"></i>
+                                }
+                                else
+                                {
+                                    <i class="far fa-star"></i>
+                                }
+                            }
+                        </div>
+                        <p class="card-text">@review.Content</p>
+                    </div>
+                </div>
+            }
+        </div>
+    </div>
+</div> 

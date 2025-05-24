@@ -1,0 +1,43 @@
+@model MovieManagement.Models.User
+@{
+    ViewData["Title"] = "Login";
+}
+
+<div class="auth-bg">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-md-6 col-lg-5">
+                <div class="auth-container">
+                    <div class="text-center mb-4">
+                        <h2 class="auth-title">Welcome Back</h2>
+                        <p class="text-muted">Sign in to your account</p>
+                    </div>
+                    <form asp-action="Login" method="post" class="auth-form">
+                        <div class="form-floating mb-3">
+                            <input asp-for="Email" class="form-control" placeholder="name@example.com" />
+                            <label asp-for="Email">Email address</label>
+                            <span asp-validation-for="Email" class="text-danger"></span>
+                        </div>
+                        <div class="form-floating mb-4">
+                            <input asp-for="PasswordHash" type="password" class="form-control" placeholder="Password" />
+                            <label asp-for="PasswordHash">Password</label>
+                            <span asp-validation-for="PasswordHash" class="text-danger"></span>
+                        </div>
+                        <div class="form-check mb-3">
+                            <input class="form-check-input" type="checkbox" id="rememberMe">
+                            <label class="form-check-label" for="rememberMe">
+                                Remember me
+                            </label>
+                        </div>
+                        <div class="d-grid gap-2">
+                            <button type="submit" class="btn btn-primary btn-lg">Sign In</button>
+                        </div>
+                    </form>
+                    <div class="text-center mt-4">
+                        <p class="mb-0">Don't have an account? <a asp-action="Register" class="auth-link">Register here</a></p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div> 
