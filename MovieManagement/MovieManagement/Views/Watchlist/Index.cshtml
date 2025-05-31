@@ -3,13 +3,116 @@
     ViewData["Title"] = "My Watchlist";
 }
 
+<div class="container">
+    <div class="row mb-4">
+        <div class="col-md-6">
+            <h2>My Watchlist</h2>
+        </div>
+        <div class="col-md-6">
+            <form asp-controller="Watchlist" asp-action="Search" method="get">
+                <div class="input-group">
+                    <input type="text" class="form-control" name="query" placeholder="Search in watchlist..." value="@ViewData["SearchQuery"]">
+                    <button class="btn btn-primary" type="submit">Search</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    @if (TempData["SuccessMessage"] != null)
+    {
+        <div class="alert alert-success alert-dismissible fade show" role="alert">
+            @TempData["SuccessMessage"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    }
+
+    @if (TempData["InfoMessage"] != null)
+    {
+        <div class="alert alert-info alert-dismissible fade show" role="alert">
+            @TempData["InfoMessage"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    }
+
+    @if (!Model.Any())
+    {
+        <div class="alert alert-info">
+            @if (ViewData["SearchQuery"] != null)
+            {
+                <h4 class="alert-heading">No movies found in your watchlist!</h4>
+                <p>Your search for "<strong>@ViewData["SearchQuery"]</strong>" did not match any movies in your watchlist.</p>
+            }
+            else
+            {
+                <h4 class="alert-heading">Your watchlist is empty!</h4>
+                <p>Start adding movies to your watchlist to keep track of what you want to watch.</p>
+            }
+            <hr>
+            <a asp-controller="Movies" asp-action="Index" class="btn btn-primary">Browse Movies</a>
+        </div>
+    }
+    else
+    {
+        <div class="row">
+            @foreach (var movie in Model)
+            {
+                <div class="col-md-4 mb-4 d-flex">
+                    <div class="card movie-card w-100">
+                        <div class="movie-poster-container">
+                            <img src="@movie.PosterUrl" class="movie-poster" alt="@movie.Title">
+                        </div>
+                        <div class="card-body">
+                            <h5 class="card-title">@movie.Title</h5>
+                            <p class="card-text">
+                                <small class="text-muted">Director: @movie.Director</small><br>
+                                <small class="text-muted">Rating: @movie.Rating/10</small>
+                            </p>
+                            <div class="d-flex justify-content-between">
+                                <a asp-controller="Movies" asp-action="Details" asp-route-id="@movie.Id" class="btn btn-primary">View Details</a>
+                                <form asp-controller="Watchlist" asp-action="RemoveFromWatchlist" method="post">
+                                    <input type="hidden" name="movieId" value="@movie.Id" />
+                                    <button type="submit" class="btn btn-danger">
+                                        <i class="fas fa-trash"></i> Remove
+                                    </button>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+    }
+</div>
+
+@section Scripts {
+    <script>
+        setTimeout(function() {
+            document.querySelectorAll('.alert').forEach(function(alert) {
+                var closeButton = alert.querySelector('.btn-close');
+                if (closeButton) {
+                    closeButton.click();
+                }
+            });
+        }, 5000);
+    </script>
+}
+
 <style>
-    .movie-poster {
+    .movie-poster-container {
         width: 100%;
         height: 400px;
+        overflow: hidden;
+        background-color: #f8f9fa;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .movie-poster {
+        width: 100%;
+        height: 100%;
         object-fit: contain;
         object-position: center;
-        background-color: #f8f9fa;
     }
 
     .movie-card {
@@ -25,47 +128,3 @@
             justify-content: space-between;
         }
 </style>
-
-<div class="container">
-    <div class="row mb-4">
-        <div class="col-md-6">
-            <h2>My Watchlist</h2>
-        </div>
-    </div>
-
-    @if (!Model.Any())
-    {
-        <div class="alert alert-info">
-            <h4 class="alert-heading">Your watchlist is empty!</h4>
-            <p>Start adding movies to your watchlist to keep track of what you want to watch.</p>
-            <hr>
-            <a asp-controller="Movies" asp-action="Index" class="btn btn-primary">Browse Movies</a>
-        </div>
-    }
-    else
-    {
-        <div class="row">
-            @foreach (var movie in Model)
-            {
-                <div class="col-md-4 mb-4 d-flex">
-                    <div class="card movie-card w-100">
-                        <img src="@movie.PosterUrl" class="card-img-top movie-poster" alt="@movie.Title">
-                        <div class="card-body">
-                            <h5 class="card-title">@movie.Title</h5>
-                            <p class="card-text">
-                                <small class="text-muted">Director: @movie.Director</small><br>
-                                <small class="text-muted">Rating: @movie.Rating/10</small>
-                            </p>
-                            <div class="d-flex justify-content-between">
-                                <a asp-controller="Movies" asp-action="Details" asp-route-id="@movie.Id" class="btn btn-primary">View Details</a>
-                                <button class="btn btn-danger remove-from-watchlist" data-movie-id="@movie.Id">
-                                    <i class="fas fa-trash"></i> Remove
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            }
-        </div>
-    }
-</div>

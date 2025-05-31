@@ -1,5 +1,7 @@
+using System;
 using System.Diagnostics;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Logging;
 using MovieManagement.Models;
 
 namespace MovieManagement.Controllers
@@ -15,12 +17,32 @@ namespace MovieManagement.Controllers
 
         public IActionResult Index()
         {
-            return View();
+            try
+            {
+                return View();
+            }
+            catch (Exception)
+            {
+                return View("Error", new ErrorViewModel
+                {
+                    RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier
+                });
+            }
         }
 
         public IActionResult Privacy()
         {
-            return View();
+            try
+            {
+                return View();
+            }
+            catch (Exception)
+            {
+                return View("Error", new ErrorViewModel
+                {
+                    RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier
+                });
+            }
         }
 
         [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
