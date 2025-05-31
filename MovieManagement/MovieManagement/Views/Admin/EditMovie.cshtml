@@ -1,4 +1,4 @@
-@model MovieManagement.Models.Movie
+@model MovieManagement.Models.MovieViewModel
 @{
     ViewData["Title"] = "Edit Movie";
 }
@@ -9,56 +9,73 @@
             <div class="card">
                 <div class="card-body">
                     <h2 class="card-title text-center mb-4">Edit Movie</h2>
-                    <form>
-                        <input type="hidden" id="id" name="id" value="@Model.Id">
+                    <form asp-action="EditMovie" asp-controller="Admin" method="post" enctype="multipart/form-data">
+                        <input type="hidden" asp-for="Id">
                         <div class="mb-3">
-                            <label for="title" class="form-label">Title</label>
-                            <input type="text" class="form-control" id="title" name="title" value="@Model.Title" required>
+                            <label asp-for="Title" class="form-label"></label>
+                            <input asp-for="Title" class="form-control" required>
+                            <span asp-validation-for="Title" class="text-danger"></span>
                         </div>
                         <div class="mb-3">
-                            <label for="director" class="form-label">Director</label>
-                            <input type="text" class="form-control" id="director" name="director" value="@Model.Director" required>
+                            <label asp-for="Director" class="form-label"></label>
+                            <input asp-for="Director" class="form-control" required>
+                            <span asp-validation-for="Director" class="text-danger"></span>
                         </div>
                         <div class="mb-3">
-                            <label for="description" class="form-label">Description</label>
-                            <textarea class="form-control" id="description" name="description" rows="3" required>@Model.Description</textarea>
+                            <label asp-for="Description" class="form-label"></label>
+                            <textarea asp-for="Description" class="form-control" rows="3"></textarea>
+                            <span asp-validation-for="Description" class="text-danger"></span>
                         </div>
                         <div class="row">
                             <div class="col-md-6 mb-3">
-                                <label for="releaseDate" class="form-label">Release Date</label>
-                                <input type="date" class="form-control" id="releaseDate" name="releaseDate" value="@Model.ReleaseDate.ToString("yyyy-MM-dd")" required>
+                                <label asp-for="ReleaseDate" class="form-label"></label>
+                                <input asp-for="ReleaseDate" class="form-control" type="date">
+                                <span asp-validation-for="ReleaseDate" class="text-danger"></span>
                             </div>
                             <div class="col-md-6 mb-3">
-                                <label for="duration" class="form-label">Duration (minutes)</label>
-                                <input type="number" class="form-control" id="duration" name="duration" value="@Model.Duration" required>
+                                <label asp-for="Duration" class="form-label"></label>
+                                <input asp-for="Duration" class="form-control" type="number">
+                                <span asp-validation-for="Duration" class="text-danger"></span>
                             </div>
                         </div>
                         <div class="mb-3">
-                            <label for="posterUrl" class="form-label">Poster URL</label>
-                            <input type="url" class="form-control" id="posterUrl" name="posterUrl" value="@Model.PosterUrl" required>
+                            <label asp-for="PosterFile" class="form-label"></label>
+                            <input asp-for="PosterFile" class="form-control" type="file" accept="image/*">
+                            <span asp-validation-for="PosterFile" class="text-danger"></span>
+                        </div>
+                        @if (!string.IsNullOrEmpty(Model.PosterUrl))
+                        {
+                            <div class="mb-3">
+                                <label asp-for="PosterUrl" class="form-label">Current Poster</label>
+                                <img src="@Model.PosterUrl" alt="Current Poster" class="img-thumbnail" style="max-height: 200px">
+                                <input asp-for="PosterUrl" type="hidden">
+                            </div>
+                        }
+                        <div class="mb-3">
+                            <label asp-for="TrailerUrl" class="form-label"></label>
+                            <input asp-for="TrailerUrl" class="form-control" placeholder="https://www.youtube.com/watch?v=...">
+                            <span asp-validation-for="TrailerUrl" class="text-danger"></span>
+                            <small class="form-text text-muted">Enter a YouTube, Vimeo, or other video streaming URL</small>
                         </div>
                         <div class="mb-3">
-                            <label for="rating" class="form-label">Rating</label>
-                            <input type="number" class="form-control" id="rating" name="rating" min="0" max="10" step="0.1" value="@Model.Rating" required>
+                            <label asp-for="Rating" class="form-label"></label>
+                            <input asp-for="Rating" class="form-control" type="number" min="0" max="10" step="0.1">
+                            <span asp-validation-for="Rating" class="text-danger"></span>
                         </div>
                         <div class="mb-3">
-                            <label class="form-label">Categories</label>
-                            <div class="form-check">
-                                <input class="form-check-input" type="checkbox" id="action" name="categories" value="action" @(Model.Categories?.Any(c => c.Name == "Action") == true ? "checked" : "")>
-                                <label class="form-check-label" for="action">Action</label>
-                            </div>
-                            <div class="form-check">
-                                <input class="form-check-input" type="checkbox" id="drama" name="categories" value="drama" @(Model.Categories?.Any(c => c.Name == "Drama") == true ? "checked" : "")>
-                                <label class="form-check-label" for="drama">Drama</label>
-                            </div>
-                            <div class="form-check">
-                                <input class="form-check-input" type="checkbox" id="comedy" name="categories" value="comedy" @(Model.Categories?.Any(c => c.Name == "Comedy") == true ? "checked" : "")>
-                                <label class="form-check-label" for="comedy">Comedy</label>
-                            </div>
-                            <div class="form-check">
-                                <input class="form-check-input" type="checkbox" id="sciFi" name="categories" value="sciFi" @(Model.Categories?.Any(c => c.Name == "Sci-Fi") == true ? "checked" : "")>
-                                <label class="form-check-label" for="sciFi">Sci-Fi</label>
-                            </div>
+                            <label asp-for="SelectedCategoryIds" class="form-label">Categories</label>
+                            @if (Model.AvailableCategories != null)
+                            {
+                                @foreach (var category in Model.AvailableCategories)
+                                {
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" name="SelectedCategoryIds"
+                                               value="@category.Id" id="category_@category.Id"
+                                        @(Model.SelectedCategoryIds.Contains(category.Id) ? "checked" : "")>
+                                        <label class="form-check-label" for="category_@category.Id">@category.Name</label>
+                                    </div>
+                                }
+                            }
                         </div>
                         <div class="d-grid gap-2">
                             <button type="submit" class="btn btn-primary">Save Changes</button>

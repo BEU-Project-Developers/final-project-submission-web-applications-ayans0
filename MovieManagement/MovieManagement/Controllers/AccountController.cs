@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using MovieManagement.Models;
+using System;
 using System.Threading.Tasks;
 
 namespace MovieManagement.Controllers
@@ -30,29 +31,43 @@ namespace MovieManagement.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Login(LoginViewModel model, string? returnUrl = null)
         {
-            ViewData["ReturnUrl"] = returnUrl;
-
-            if (ModelState.IsValid)
+            try
             {
-                // Find user by email first
-                var user = await _userManager.FindByEmailAsync(model.Email);
-                if (user != null)
-                {
-                    // Sign in with username instead of email
-                    var result = await _signInManager.PasswordSignInAsync(
-                        user.UserName, model.Password, model.RememberMe, lockoutOnFailure: false);
+                ViewData["ReturnUrl"] = returnUrl;
 
-                    if (result.Succeeded)
+                if (ModelState.IsValid)
+                {
+                    // Find user by email first
+                    var user = await _userManager.FindByEmailAsync(model.Email);
+                    if (user != null)
                     {
-                        return RedirectToLocal(returnUrl);
+                        // Sign in with username instead of email
+                        var result = await _signInManager.PasswordSignInAsync(
+                            user.UserName, model.Password, model.RememberMe, lockoutOnFailure: false);
+
+                        if (result.Succeeded)
+                        {
+                            return RedirectToLocal(returnUrl);
+                        }
+
+                        if (result.IsLockedOut)
+                        {
+                            ModelState.AddModelError(string.Empty, "Account locked out. Please try again later.");
+                            return View(model);
+                        }
                     }
+
+                    ModelState.AddModelError(string.Empty, "Invalid login attempt. Please check your email and password.");
+                    return View(model);
                 }
 
-                ModelState.AddModelError(string.Empty, "Invalid login attempt.");
                 return View(model);
             }
-
-            return View(model);
+            catch (Exception ex)
+            {
+                ModelState.AddModelError(string.Empty, "An error occurred during login. Please try again.");
+                return View(model);
+            }
         }
 
         [HttpGet]
@@ -66,92 +81,124 @@ namespace MovieManagement.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Register(RegisterViewModel model, string? returnUrl = null)
         {
-            ViewData["ReturnUrl"] = returnUrl;
-
-            if (ModelState.IsValid)
+            try
             {
-                // Check if email already exists
-                var existingUserWithEmail = await _userManager.FindByEmailAsync(model.Email);
-                if (existingUserWithEmail != null)
+                ViewData["ReturnUrl"] = returnUrl;
+
+                if (ModelState.IsValid)
                 {
-                    ModelState.AddModelError("Email", "This email address is already registered.");
-                    return View(model);
+                    // Check if email already exists
+                    var existingUserWithEmail = await _userManager.FindByEmailAsync(model.Email);
+                    if (existingUserWithEmail != null)
+                    {
+                        ModelState.AddModelError("Email", "This email address is already registered.");
+                        return View(model);
+                    }
+
+                    // Check if username already exists
+                    var existingUserWithUsername = await _userManager.FindByNameAsync(model.UserName);
+                    if (existingUserWithUsername != null)
+                    {
+                        ModelState.AddModelError("UserName", "This username is already taken.");
+                        return View(model);
+                    }
+
+                    var user = new ApplicationUser
+                    {
+                        UserName = model.UserName,
+                        Email = model.Email,
+                        FirstName = model.FirstName,
+                        LastName = model.LastName
+                    };
+
+                    var result = await _userManager.CreateAsync(user, model.Password);
+
+                    if (result.Succeeded)
+                    {
+                        // Add user to the User role
+                        await _userManager.AddToRoleAsync(user, "User");
+
+                        await _signInManager.SignInAsync(user, isPersistent: false);
+                        return RedirectToLocal(returnUrl);
+                    }
+
+                    foreach (var error in result.Errors)
+                    {
+                        ModelState.AddModelError(string.Empty, error.Description);
+                    }
                 }
 
-                // Check if username already exists
-                var existingUserWithUsername = await _userManager.FindByNameAsync(model.UserName);
-                if (existingUserWithUsername != null)
-                {
-                    ModelState.AddModelError("UserName", "This username is already taken.");
-                    return View(model);
-                }
-
-                var user = new ApplicationUser
-                {
-                    UserName = model.UserName,
-                    Email = model.Email,
-                    FirstName = model.FirstName,
-                    LastName = model.LastName
-                };
-
-                var result = await _userManager.CreateAsync(user, model.Password);
-
-                if (result.Succeeded)
-                {
-                    // Add user to the User role
-                    await _userManager.AddToRoleAsync(user, "User");
-
-                    await _signInManager.SignInAsync(user, isPersistent: false);
-                    return RedirectToLocal(returnUrl);
-                }
-
-                foreach (var error in result.Errors)
-                {
-                    ModelState.AddModelError(string.Empty, error.Description);
-                }
+                return View(model);
             }
-
-            return View(model);
+            catch (Exception ex)
+            {
+                ModelState.AddModelError(string.Empty, "An error occurred during registration. Please try again.");
+                return View(model);
+            }
         }
 
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Logout()
         {
-            await _signInManager.SignOutAsync();
-            return RedirectToAction(nameof(HomeController.Index), "Home");
+            try
+            {
+                await _signInManager.SignOutAsync();
+                return RedirectToAction(nameof(HomeController.Index), "Home");
+            }
+            catch (Exception ex)
+            {
+                TempData["ErrorMessage"] = "An error occurred during logout. Please try again.";
+                return RedirectToAction(nameof(HomeController.Index), "Home");
+            }
         }
 
         [Authorize]
         public async Task<IActionResult> Profile()
         {
-            var user = await _userManager.GetUserAsync(User);
-            if (user == null)
+            try
             {
-                return NotFound();
-            }
+                var user = await _userManager.GetUserAsync(User);
+                if (user == null)
+                {
+                    return NotFound();
+                }
 
-            return View(user);
+                return View(user);
+            }
+            catch (Exception ex)
+            {
+                TempData["ErrorMessage"] = "An error occurred while loading your profile. Please try again later.";
+                return RedirectToAction(nameof(HomeController.Index), "Home");
+            }
         }
 
         [Authorize]
         [HttpGet]
         public async Task<IActionResult> EditProfile()
         {
-            var user = await _userManager.GetUserAsync(User);
-            if (user == null)
+            try
             {
-                return NotFound();
+                var user = await _userManager.GetUserAsync(User);
+                if (user == null)
+                {
+                    return NotFound();
+                }
+
+                var model = new EditProfileViewModel
+                {
+                    FirstName = user.FirstName,
+                    LastName = user.LastName,
+                    Email = user.Email
+                };
+
+                return View(model);
             }
-
-            var model = new EditProfileViewModel
+            catch (Exception ex)
             {
-                FirstName = user.FirstName,
-                LastName = user.LastName,
-                Email = user.Email
-            };
-
-            return View(model);
+                TempData["ErrorMessage"] = "An error occurred while loading your profile for editing. Please try again later.";
+                return RedirectToAction(nameof(Profile));
+            }
         }
 
         [Authorize]
@@ -159,47 +206,55 @@ namespace MovieManagement.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> EditProfile(EditProfileViewModel model)
         {
-            if (!ModelState.IsValid)
+            try
             {
-                return View(model);
-            }
-
-            var user = await _userManager.GetUserAsync(User);
-            if (user == null)
-            {
-                return NotFound();
-            }
-
-            user.FirstName = model.FirstName;
-            user.LastName = model.LastName;
-
-            // Only update email if it changed
-            if (user.Email != model.Email)
-            {
-                // Check if email is already in use
-                var existingUser = await _userManager.FindByEmailAsync(model.Email);
-                if (existingUser != null && existingUser.Id != user.Id)
+                if (!ModelState.IsValid)
                 {
-                    ModelState.AddModelError("Email", "Email is already in use");
                     return View(model);
                 }
 
-                user.Email = model.Email;
-                user.UserName = model.Email; // Optionally update username to match email
-            }
-
-            var result = await _userManager.UpdateAsync(user);
-            if (!result.Succeeded)
-            {
-                foreach (var error in result.Errors)
+                var user = await _userManager.GetUserAsync(User);
+                if (user == null)
                 {
-                    ModelState.AddModelError(string.Empty, error.Description);
+                    return NotFound();
                 }
+
+                user.FirstName = model.FirstName;
+                user.LastName = model.LastName;
+
+                // Only update email if it changed
+                if (user.Email != model.Email)
+                {
+                    // Check if email is already in use
+                    var existingUser = await _userManager.FindByEmailAsync(model.Email);
+                    if (existingUser != null && existingUser.Id != user.Id)
+                    {
+                        ModelState.AddModelError("Email", "Email is already in use");
+                        return View(model);
+                    }
+
+                    user.Email = model.Email;
+                    user.UserName = model.Email; // Optionally update username to match email
+                }
+
+                var result = await _userManager.UpdateAsync(user);
+                if (!result.Succeeded)
+                {
+                    foreach (var error in result.Errors)
+                    {
+                        ModelState.AddModelError(string.Empty, error.Description);
+                    }
+                    return View(model);
+                }
+
+                TempData["StatusMessage"] = "Your profile has been updated";
+                return RedirectToAction(nameof(Profile));
+            }
+            catch (Exception ex)
+            {
+                ModelState.AddModelError(string.Empty, "An error occurred while updating your profile. Please try again.");
                 return View(model);
             }
-
-            TempData["StatusMessage"] = "Your profile has been updated";
-            return RedirectToAction(nameof(Profile));
         }
 
         [Authorize]
@@ -214,32 +269,40 @@ namespace MovieManagement.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> ChangePassword(ChangePasswordViewModel model)
         {
-            if (!ModelState.IsValid)
+            try
             {
-                return View(model);
-            }
-
-            var user = await _userManager.GetUserAsync(User);
-            if (user == null)
-            {
-                return NotFound();
-            }
-
-            var result = await _userManager.ChangePasswordAsync(user,
-                model.CurrentPassword, model.NewPassword);
-
-            if (!result.Succeeded)
-            {
-                foreach (var error in result.Errors)
+                if (!ModelState.IsValid)
                 {
-                    ModelState.AddModelError(string.Empty, error.Description);
+                    return View(model);
                 }
+
+                var user = await _userManager.GetUserAsync(User);
+                if (user == null)
+                {
+                    return NotFound();
+                }
+
+                var result = await _userManager.ChangePasswordAsync(user,
+                    model.CurrentPassword, model.NewPassword);
+
+                if (!result.Succeeded)
+                {
+                    foreach (var error in result.Errors)
+                    {
+                        ModelState.AddModelError(string.Empty, error.Description);
+                    }
+                    return View(model);
+                }
+
+                await _signInManager.RefreshSignInAsync(user);
+                TempData["StatusMessage"] = "Your password has been changed";
+                return RedirectToAction(nameof(Profile));
+            }
+            catch (Exception ex)
+            {
+                ModelState.AddModelError(string.Empty, "An error occurred while changing your password. Please try again.");
                 return View(model);
             }
-
-            await _signInManager.RefreshSignInAsync(user);
-            TempData["StatusMessage"] = "Your password has been changed";
-            return RedirectToAction(nameof(Profile));
         }
 
         [HttpGet]
@@ -251,20 +314,28 @@ namespace MovieManagement.Controllers
         [Authorize]
         public async Task<IActionResult> UserInfo()
         {
-            var user = await _userManager.GetUserAsync(User);
-            if (user == null)
+            try
             {
-                return NotFound("User not found");
+                var user = await _userManager.GetUserAsync(User);
+                if (user == null)
+                {
+                    return NotFound("User not found");
+                }
+
+                var roles = await _userManager.GetRolesAsync(user);
+
+                ViewData["UserId"] = user.Id;
+                ViewData["UserName"] = user.UserName;
+                ViewData["Email"] = user.Email;
+                ViewData["Roles"] = string.Join(", ", roles);
+
+                return View();
             }
-
-            var roles = await _userManager.GetRolesAsync(user);
-
-            ViewData["UserId"] = user.Id;
-            ViewData["UserName"] = user.UserName;
-            ViewData["Email"] = user.Email;
-            ViewData["Roles"] = string.Join(", ", roles);
-
-            return View();
+            catch (Exception ex)
+            {
+                TempData["ErrorMessage"] = "An error occurred while loading user information. Please try again later.";
+                return RedirectToAction(nameof(Profile));
+            }
         }
 
         private IActionResult RedirectToLocal(string returnUrl)

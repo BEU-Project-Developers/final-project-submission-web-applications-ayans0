@@ -23,7 +23,8 @@
                             <dd class="col-sm-9">@Model.Director</dd>
                         </dl>
                     </div>
-                    <form>
+                    <form asp-controller="Admin" asp-action="DeleteMovie" method="post">
+                        @Html.AntiForgeryToken()
                         <input type="hidden" id="id" name="id" value="@Model.Id">
                         <div class="d-grid gap-2">
                             <button type="submit" class="btn btn-danger">Delete Movie</button>
