@@ -1,0 +1,65 @@
+﻿@model MovieManagement.Models.RegisterViewModel
+@{
+    ViewData["Title"] = "Register";
+}
+
+<div class="auth-bg">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-md-6 col-lg-5">
+                <div class="auth-container">
+                    <div class="text-center mb-4">
+                        <h2 class="auth-title">Create Account</h2>
+                        <p class="text-muted">Join our movie community</p>
+                    </div>
+                    <form asp-action="Register" asp-controller="Account" method="post" class="auth-form">
+                        <input type="hidden" name="returnUrl" value="@ViewData["ReturnUrl"]" />
+                        <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+                        <div class="form-floating mb-3">
+                            <input asp-for="UserName" class="form-control" placeholder="Username" />
+                            <label asp-for="UserName">Username</label>
+                            <span asp-validation-for="UserName" class="text-danger"></span>
+                        </div>
+                        <div class="form-floating mb-3">
+                            <input asp-for="Email" class="form-control" placeholder="name@example.com" />
+                            <label asp-for="Email">Email address</label>
+                            <span asp-validation-for="Email" class="text-danger"></span>
+                        </div>
+                        <div class="form-floating mb-3">
+                            <input asp-for="FirstName" class="form-control" placeholder="First Name" />
+                            <label asp-for="FirstName">First Name</label>
+                            <span asp-validation-for="FirstName" class="text-danger"></span>
+                        </div>
+                        <div class="form-floating mb-3">
+                            <input asp-for="LastName" class="form-control" placeholder="Last Name" />
+                            <label asp-for="LastName">Last Name</label>
+                            <span asp-validation-for="LastName" class="text-danger"></span>
+                        </div>
+                        <div class="form-floating mb-3">
+                            <input asp-for="Password" type="password" class="form-control" placeholder="Password" />
+                            <label asp-for="Password">Password</label>
+                            <span asp-validation-for="Password" class="text-danger"></span>
+                        </div>
+                        <div class="form-floating mb-3">
+                            <input asp-for="ConfirmPassword" type="password" class="form-control" placeholder="Confirm Password" />
+                            <label asp-for="ConfirmPassword">Confirm Password</label>
+                            <span asp-validation-for="ConfirmPassword" class="text-danger"></span>
+                        </div>
+                        <div class="d-grid gap-2">
+                            <button type="submit" class="btn btn-primary btn-lg">Create Account</button>
+                        </div>
+                    </form>
+                    <div class="text-center mt-4">
+                        <p class="mb-0">Already have an account? <a asp-action="Login" class="auth-link">Sign in here</a></p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+} 

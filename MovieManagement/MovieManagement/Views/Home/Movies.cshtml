@@ -1,0 +1,141 @@
+﻿@{
+    ViewData["Title"] = "Movies";
+}
+
+
+<style>
+    .hero {
+        background-color: #212529;
+        color: white;
+        padding: 50px;
+        text-align: center;
+    }
+
+    .card-container {
+        display: flex;
+        justify-content: center;
+        gap: 20px;
+        margin-top: 20px;
+    }
+
+    .card {
+        width: 300px;
+        text-align: center;
+    }
+
+    .movie-card img {
+        width: 100%;
+        height: 400px;
+        object-fit: cover;
+    }
+</style>
+
+<h2 class="mt-5">Movies</h2>
+<div class="container mt-4">
+    <div class="input-group mb-3">
+        <input type="text" class="form-control" id="searchInput" placeholder="Search movies..." aria-label="Search movies">
+        <button class="btn btn-primary" type="button">Search</button>
+    </div>
+</div>
+
+<div class="row mt-5">
+    <div class="col-md-3 mt-4">
+        <div class="card movie-card">
+            <img src="@Url.Content("~/images/inception.jpg")" alt="Inception" />
+            <div class="card-body">
+                <h5 class="card-title">Inception</h5>
+                <span class="badge bg-primary">Action, Sci-Fi</span>
+                <p>⭐ 5.0</p>
+                <a href="#" class="btn btn-outline-primary">Details</a>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3 mt-4">
+        <div class="card movie-card">
+            <img src="@Url.Content("~/images/darkkinght.jpg")" alt="The Dark Knight">
+            <div class="card-body">
+                <h5 class="card-title">The Dark Knight</h5>
+                <span class="badge bg-primary">Action, Crime, Drama</span>
+                <p>⭐ 0.0</p>
+                <a href="#" class="btn btn-outline-primary">Details</a>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3 mt-4">
+        <div class="card movie-card">
+            <img src="@Url.Content("~/images/pulpfiction.jpg")" alt="Pulp Fiction">
+            <div class="card-body">
+                <h5 class="card-title">Pulp Fiction</h5>
+                <span class="badge bg-primary">Crime, Drama</span>
+                <p>⭐ 0.0</p>
+                <a href="#" class="btn btn-outline-primary">Details</a>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3 mt-4">
+        <div class="card movie-card">
+            <img src="@Url.Content("~/images/redemption.jpg")" alt="The Shawshank Redemption">
+            <div class="card-body">
+                <h5 class="card-title">The Shawshank Redemption</h5>
+                <span class="badge bg-primary">Drama</span>
+                <p>⭐ 0.0</p>
+                <a href="#" class="btn btn-outline-primary">Details</a>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3 mt-4">
+        <div class="card movie-card">
+            <img src="@Url.Content("~/images/awake.jpg")" alt="Awake">
+            <div class="card-body">
+                <h5 class="card-title">Awake</h5>
+                <span class="badge bg-primary">Thriller</span>
+                <p>⭐ 0.0</p>
+                <a href="#" class="btn btn-outline-primary">Details</a>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3 mt-4">
+        <div class="card movie-card">
+            <img src="@Url.Content("~/images/birdbox.jpg")" alt="Bird Box">
+            <div class="card-body">
+                <h5 class="card-title">Bird Box</h5>
+                <span class="badge bg-primary">Action, Thriller</span>
+                <p>⭐ 0.0</p>
+                <a href="#" class="btn btn-outline-primary">Details</a>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3 mt-4">
+        <div class="card movie-card">
+            <img src="@Url.Content("~/images/oppen.jpg")" alt="Oppenheimer">
+            <div class="card-body">
+                <h5 class="card-title">Oppenheimer</h5>
+                <span class="badge bg-primary">Science fiction</span>
+                <p>⭐ 0.0</p>
+                <a href="#" class="btn btn-outline-primary">Details</a>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3 mt-4">
+        <div class="card movie-card">
+            <img src="@Url.Content("~/images/revenant.jpg")" alt="The Revenant">
+            <div class="card-body">
+                <h5 class="card-title">The Revenant</h5>
+                <span class="badge bg-primary">Action</span>
+                <p>⭐ 0.0</p>
+                <a href="#" class="btn btn-outline-primary">Details</a>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3 mt-4">
+        <div class="card movie-card">
+            <img src="@Url.Content("~/images/titanic.jpg")" alt="Titanic">
+            <div class="card-body">
+                <h5 class="card-title">Titanic</h5>
+                <span class="badge bg-primary">Action, Drama</span>
+                <p>⭐ 0.0</p>
+                <a href="#" class="btn btn-outline-primary">Details</a>
+            </div>
+        </div>
+    </div>
+</div>

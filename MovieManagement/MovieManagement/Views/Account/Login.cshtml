@@ -1,0 +1,43 @@
+﻿@model MovieManagement.Models.LoginViewModel
+@{
+    ViewData["Title"] = "Login";
+}
+
+<div class="auth-bg">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-md-6 col-lg-5">
+                <div class="auth-container">
+                    <div class="text-center mb-4">
+                        <h2 class="auth-title">Welcome Back</h2>
+                        <p class="text-muted">Sign in to your account</p>
+                    </div>
+                    <form asp-action="Login" asp-controller="Account" method="post" class="auth-form">
+                        <input type="hidden" name="returnUrl" value="@ViewData["ReturnUrl"]" />
+                        <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+                        <div class="form-floating mb-3">
+                            <input asp-for="Email" class="form-control" placeholder="name@example.com" />
+                            <label asp-for="Email">Email address</label>
+                            <span asp-validation-for="Email" class="text-danger"></span>
+                        </div>
+                        <div class="form-floating mb-4">
+                            <input asp-for="Password" type="password" class="form-control" placeholder="Password" />
+                            <label asp-for="Password">Password</label>
+                            <span asp-validation-for="Password" class="text-danger"></span>
+                        </div>
+                        <div class="form-check mb-3">
+                            <input asp-for="RememberMe" class="form-check-input" />
+                            <label asp-for="RememberMe" class="form-check-label"></label>
+                        </div>
+                        <div class="d-grid gap-2">
+                            <button type="submit" class="btn btn-primary btn-lg">Sign In</button>
+                        </div>
+                    </form>
+                    <div class="text-center mt-4">
+                        <p class="mb-0">Don't have an account? <a asp-action="Register" class="auth-link">Register here</a></p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div> 
