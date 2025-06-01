@@ -155,17 +155,6 @@ namespace MovieManagement.Models
                         PosterUrl = "/images/shawshankredemption.jpeg",
                         TrailerUrl = "https://youtu.be/6hB3S9bIaco"
                     },
-                        new Movie
-                    {
-                        Title = "The Revenant",
-                        Director = "Dan Reynolds",
-                        Description = "Two imprisoned men bond over a number of years, finding solace and eventual redemption through acts of common decency.",
-                        ReleaseDate = new DateTime(1994, 9, 23),
-                        Rating = 8.4,
-                        Duration = 142,
-                        PosterUrl = "/images/shawshankredemption.jpeg",
-                        TrailerUrl = "https://youtu.be/6hB3S9bIaco"
-                    },
                     new Movie
                     {
                         Title = "The Godfather",

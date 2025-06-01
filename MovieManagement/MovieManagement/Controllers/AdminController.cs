@@ -27,7 +27,7 @@ namespace MovieManagement.Controllers
         public async Task<IActionResult> Index()
         {
             try
-            {
+            { //filmleri dbdan goturur
                 var movies = await _context.Movies.ToListAsync();
                 return View(movies);
             }
@@ -47,7 +47,7 @@ namespace MovieManagement.Controllers
                     AvailableCategories = await _context.Categories.ToListAsync()
                 };
 
-                return View(viewModel);
+                return View(viewModel); //film elave etmek ucun formu acir
             }
             catch (Exception ex)
             {
@@ -185,7 +185,7 @@ namespace MovieManagement.Controllers
                         TempData["ErrorMessage"] = "Movie not found.";
                         return RedirectToAction(nameof(Index));
                     }
-
+                    //melumatlari yenileyir
                     movie.Title = viewModel.Title;
                     movie.Director = viewModel.Director;
                     movie.Description = viewModel.Description;
@@ -291,7 +291,7 @@ namespace MovieManagement.Controllers
         public async Task<IActionResult> DeleteMovieConfirmed(int id)
         {
             try
-            {
+            { //filme aid melumatlari alir
                 var movie = await _context.Movies
                     .Include(m => m.MovieCategories)
                     .Include(m => m.Reviews)
@@ -316,7 +316,8 @@ namespace MovieManagement.Controllers
                     }
                 }
 
-                // Entity Framework will handle deleting related entities based on cascade delete
+                // Entity Framework will handle deleting related entities based on cascade delete 
+                //(moviecategory ve reviewler de avtomatik silinir)
                 _context.Movies.Remove(movie);
                 await _context.SaveChangesAsync();
 

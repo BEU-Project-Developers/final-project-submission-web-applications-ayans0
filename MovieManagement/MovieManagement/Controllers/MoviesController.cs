@@ -4,10 +4,6 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using MovieManagement.Models;
 using MovieManagement.Services;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 
 namespace MovieManagement.Controllers
 {
@@ -31,6 +27,7 @@ namespace MovieManagement.Controllers
         {
             try
             {
+                //movies table'dan filmleri goturur
                 var movies = await _context.Movies
                     .OrderByDescending(m => m.Rating)
                     .ToListAsync();
@@ -76,6 +73,7 @@ namespace MovieManagement.Controllers
         {
             try
             {
+                //rating 1-10 arasi olmalidi
                 if (rating < 1 || rating > 10)
                 {
                     TempData["ErrorMessage"] = "Rating must be between 1 and 10.";
@@ -89,7 +87,7 @@ namespace MovieManagement.Controllers
                     return RedirectToAction(nameof(Index));
                 }
 
-                var user = await _userManager.GetUserAsync(User);
+                var user = await _userManager.GetUserAsync(User); //login edenin melumati alinir
                 if (user == null)
                 {
                     return Challenge();
@@ -125,7 +123,7 @@ namespace MovieManagement.Controllers
                 };
 
                 _context.Reviews.Add(review);
-                await _context.SaveChangesAsync();
+                await _context.SaveChangesAsync();     //dbya elave olunur
 
                 // Update movie average rating
                 var movieReviews = await _context.Reviews
@@ -149,70 +147,11 @@ namespace MovieManagement.Controllers
         }
 
         [Authorize]
-        [HttpPost]
-        public async Task<IActionResult> DeleteReview(int reviewId, int movieId)
-        {
-            try
-            {
-                var user = await _userManager.GetUserAsync(User);
-                if (user == null)
-                {
-                    return Challenge();
-                }
-
-                var review = await _context.Reviews.FindAsync(reviewId);
-                if (review == null)
-                {
-                    TempData["ErrorMessage"] = "Review not found.";
-                    return RedirectToAction(nameof(Details), new { id = movieId });
-                }
-
-                // Check if the review belongs to the user or if the user is an admin
-                if (review.UserId != user.Id && !User.IsInRole("Admin"))
-                {
-                    TempData["ErrorMessage"] = "You do not have permission to delete this review.";
-                    return RedirectToAction(nameof(Details), new { id = movieId });
-                }
-
-                _context.Reviews.Remove(review);
-                await _context.SaveChangesAsync();
-
-                // Update movie average rating
-                var movie = await _context.Movies.FindAsync(movieId);
-                if (movie != null)
-                {
-                    var movieReviews = await _context.Reviews
-                        .Where(r => r.MovieId == movieId)
-                        .ToListAsync();
-
-                    if (movieReviews.Any())
-                    {
-                        movie.Rating = Math.Round(movieReviews.Average(r => r.Rating), 1);
-                    }
-                    else
-                    {
-                        movie.Rating = 0;
-                    }
-
-                    await _context.SaveChangesAsync();
-                }
-
-                TempData["SuccessMessage"] = "Review has been deleted successfully.";
-                return RedirectToAction(nameof(Details), new { id = movieId });
-            }
-            catch (Exception ex)
-            {
-                TempData["ErrorMessage"] = "An error occurred while deleting the review. Please try again later.";
-                return RedirectToAction(nameof(Details), new { id = movieId });
-            }
-        }
-
-        [Authorize]
         public async Task<IActionResult> AddToWatchlist(int movieId)
         {
             try
             {
-                var user = await _userManager.GetUserAsync(User);
+                var user = await _userManager.GetUserAsync(User); //user yoxdusa logine gonderir
                 if (user == null)
                 {
                     return Challenge();
@@ -273,50 +212,6 @@ namespace MovieManagement.Controllers
             }
         }
 
-        [Authorize]
-        [HttpPost]
-        public async Task<IActionResult> RemoveFromWatchlist(int movieId)
-        {
-            try
-            {
-                var user = await _userManager.GetUserAsync(User);
-                if (user == null)
-                {
-                    return Challenge();
-                }
-
-                // Get default watchlist
-                var watchlist = await _context.Watchlists
-                    .FirstOrDefaultAsync(w => w.UserId == user.Id && w.Name == "My Watchlist");
-
-                if (watchlist == null)
-                {
-                    TempData["ErrorMessage"] = "Watchlist not found.";
-                    return RedirectToAction(nameof(Watchlist));
-                }
-
-                // Find watchlist entry
-                var watchlistMovie = await _context.WatchlistMovies
-                    .FirstOrDefaultAsync(wm => wm.WatchlistId == watchlist.Id && wm.MovieId == movieId);
-
-                if (watchlistMovie == null)
-                {
-                    TempData["ErrorMessage"] = "Movie not found in your watchlist.";
-                    return RedirectToAction(nameof(Watchlist));
-                }
-
-                _context.WatchlistMovies.Remove(watchlistMovie);
-                await _context.SaveChangesAsync();
-
-                TempData["SuccessMessage"] = "Movie has been removed from your watchlist.";
-                return RedirectToAction(nameof(Watchlist));
-            }
-            catch (Exception ex)
-            {
-                TempData["ErrorMessage"] = "An error occurred while removing the movie from your watchlist. Please try again later.";
-                return RedirectToAction(nameof(Watchlist));
-            }
-        }
 
         public async Task<IActionResult> Search(string query)
         {
@@ -334,7 +229,7 @@ namespace MovieManagement.Controllers
                     .Where(m => m.Title.ToLower().Contains(normalizedQuery) ||
                                  m.Director.ToLower().Contains(normalizedQuery) ||
                                  (m.Description != null && m.Description.ToLower().Contains(normalizedQuery)))
-                    .ToListAsync();
+                    .ToListAsync();  //movies table'ina baxir 
 
                 ViewData["SearchQuery"] = query;
                 return View("Index", movies);
@@ -346,31 +241,5 @@ namespace MovieManagement.Controllers
             }
         }
 
-        public async Task<IActionResult> Category(int id)
-        {
-            try
-            {
-                var category = await _context.Categories
-                    .Include(c => c.MovieCategories)
-                    .ThenInclude(mc => mc.Movie)
-                    .FirstOrDefaultAsync(c => c.Id == id);
-
-                if (category == null)
-                {
-                    TempData["ErrorMessage"] = "Category not found.";
-                    return RedirectToAction(nameof(Index));
-                }
-
-                var movies = category.MovieCategories.Select(mc => mc.Movie).ToList();
-                ViewData["CategoryName"] = category.Name;
-
-                return View("Index", movies);
-            }
-            catch (Exception ex)
-            {
-                TempData["ErrorMessage"] = "An error occurred while loading movies by category. Please try again later.";
-                return RedirectToAction(nameof(Index));
-            }
-        }
     }
 }

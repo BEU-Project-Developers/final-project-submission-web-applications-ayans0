@@ -20,6 +20,8 @@ namespace MovieManagement.Controllers
             _signInManager = signInManager;
         }
 
+        //GET for login
+
         [HttpGet]
         public IActionResult Login(string? returnUrl = null)
         {
@@ -27,6 +29,7 @@ namespace MovieManagement.Controllers
             return View();
         }
 
+        //POST for login
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Login(LoginViewModel model, string? returnUrl = null)
@@ -37,7 +40,7 @@ namespace MovieManagement.Controllers
 
                 if (ModelState.IsValid)
                 {
-                    // Find user by email first
+                    // Useri emaili ile tapmaq
                     var user = await _userManager.FindByEmailAsync(model.Email);
                     if (user != null)
                     {
@@ -70,6 +73,8 @@ namespace MovieManagement.Controllers
             }
         }
 
+
+        // GET for registration
         [HttpGet]
         public IActionResult Register(string? returnUrl = null)
         {
@@ -103,6 +108,7 @@ namespace MovieManagement.Controllers
                         return View(model);
                     }
 
+                    //Yeni user yaradilir
                     var user = new ApplicationUser
                     {
                         UserName = model.UserName,
@@ -153,6 +159,8 @@ namespace MovieManagement.Controllers
             }
         }
 
+
+        //Profile'i gostermek ucun, sadece giris edenler gore biler
         [Authorize]
         public async Task<IActionResult> Profile()
         {
@@ -234,7 +242,7 @@ namespace MovieManagement.Controllers
                     }
 
                     user.Email = model.Email;
-                    user.UserName = model.Email; // Optionally update username to match email
+                    /*  user.UserName = model.Email; // Optionally update username to match email*/
                 }
 
                 var result = await _userManager.UpdateAsync(user);
